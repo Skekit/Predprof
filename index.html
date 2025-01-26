@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test POST Request</title>
+</head>
+<body>
+    <h1>Test POST Request</h1>
+    <label for="message">Message:</label>
+    <input type="text" id="message" placeholder="Enter your message">
+    <button id="sendBtn">Send</button>
+    <p id="response"></p>
+
+    <script>
+        document.getElementById('sendBtn').addEventListener('click', async () => {
+            const message = document.getElementById('message').value;
+            const responseElement = document.getElementById('response');
+
+            try {
+                const response = await fetch('http://127.0.0.1:8080/test1', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ message }),
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                const result = await response.json();
+                responseElement.textContent = `Server response: ${result.response}`;
+            } catch (error) {
+                responseElement.textContent = `Error: ${error.message}`;
+            }
+        });
+    </script>
+</body>
+</html>
+

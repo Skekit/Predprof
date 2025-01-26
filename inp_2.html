@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Авторизация/Регистрация</title>
+    <link rel="stylesheet" href="inp.css">
+    <link rel="stylesheet" href="test.css">
+</head>
+<body>
+    <h2>Спорт-инвентарь</h2>
+    <div class="container" id="container">
+        <!-- Форма регистрации -->
+        <div class="form-container sign-up-container">
+            <form action="#">
+                <h1>Регистрация</h1>
+                <input type="text" id="signup-username" placeholder="Ник/Имя" />
+                <input type="email" id="signup-email" placeholder="Почта" />
+                <input type="password" id="signup-password" placeholder="Пароль" />
+                <button id="signup-button">Зарегистрироваться</button>
+            </form>
+        </div>
+
+        <!-- Форма входа -->
+        <div class="form-container sign-in-container">
+            <form action="#">
+                <h1>Вход</h1>
+                <p>Админ?</p>
+                <label class="switch">
+                    <input type="checkbox" id="signin-admin">  <!-- Добавляем id -->
+                    <span class="slider round"></span>
+                </label>
+
+                <input type="email" id="signin-email" placeholder="Почта" />
+                <input type="password" id="signin-password" placeholder="Пароль" />
+                <button id="signin-button">Войти</button>
+            </form>
+        </div>
+
+        <!-- Панели для переключения между входом и регистрацией -->
+        <div class="overlay-container">
+            <div class="overlay">
+                <div class="overlay-panel overlay-left">
+                    <h1>Добро пожаловать!</h1>
+                    <p>Уже есть аккаунт? Тогда войди в систему с уже созданным аккаунтом!</p>
+                    <button class="ghost" id="signIn">Войти</button>
+                </div>
+                <div class="overlay-panel overlay-right">
+                    <h1>Привет, друг!</h1>
+                    <p>Нет аккаунта? Тогда создай его!</p>
+                    <button class="ghost" id="signUp">Зарегистрироваться</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="/inp.js"></script>
+</body>
+</html>
