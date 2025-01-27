@@ -14,3 +14,5 @@ cursor.execute('''CREATE TABLE IF NOT EXISTS connections
               (user_id INTEGER, invent_id INTEGER, FOREIGN KEY(invent_id) REFERENCES inventory(id),FOREIGN KEY(user_id) REFERENCES users(id))''')
 connection.commit()
 connection.close()
+# в инвентаре содержится инфа о каждом отдельном мячике, его состояние(в норме, сломан, заказан, требует осмотра)
+
