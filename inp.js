@@ -25,7 +25,7 @@ signupSubmitButton.addEventListener('click', (event) => {
 	sendMessage('/get_free_inventory', data); // Отправляем данные на сервер
 });
 
-// Отправка данных входа
+// вот такие кнопочки, но по запросам из sportControl
 signinSubmitButton.addEventListener('click', (event) => {
 	event.preventDefault(); // Предотвращаем стандартное поведение кнопки
 
