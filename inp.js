@@ -22,7 +22,7 @@ signupSubmitButton.addEventListener('click', (event) => {
 
 	// Собираем данные из формы регистрации
 	const data = getFormData('.sign-up-container');
-	sendMessage('/signup', data); // Отправляем данные на сервер
+	sendMessage('/get_free_inventory', data); // Отправляем данные на сервер
 });
 
 // Отправка данных входа
@@ -31,7 +31,7 @@ signinSubmitButton.addEventListener('click', (event) => {
 
 	// Собираем данные из формы входа
 	const data = getFormData('.sign-in-container');
-	sendMessage('/signin', data); // Отправляем данные на сервер
+	sendMessage('/auth/login', data); // Отправляем данные на сервер
 });
 
 // Функция для получения данных формы
