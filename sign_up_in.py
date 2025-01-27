@@ -44,18 +44,12 @@ def signin():
 
     email = data.get("signin-email")
     password = data.get("signin-password")
-    admin = data.get("admin")
 
-    print(f"Received signin data: email={email}, password={password}, admin={admin}")
+    print(f"Received signin data: email={email}, password={password}")
     print(data)
     if not email or not password:
         return jsonify({"error": "Missing fields"}), 400
 
-    # Пример использования admin значения
-    if admin:
-        print("User is admin")
-    else:
-        print("User is not admin")
 
     return jsonify({"message": "Login successful"})
 

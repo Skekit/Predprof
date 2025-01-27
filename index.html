@@ -1,42 +1,69 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ru">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Test POST Request</title>
+    <title>Спорт Инвентарь</title>
+    <link rel="stylesheet" href="broPofile.css">
 </head>
 <body>
-    <h1>Test POST Request</h1>
-    <label for="message">Message:</label>
-    <input type="text" id="message" placeholder="Enter your message">
-    <button id="sendBtn">Send</button>
-    <p id="response"></p>
 
-    <script>
-        document.getElementById('sendBtn').addEventListener('click', async () => {
-            const message = document.getElementById('message').value;
-            const responseElement = document.getElementById('response');
+<header>
+    <div id="profile-login">Логин: <span id="username"><a href="">Гость</a></span></div>
+    <h1>Спорт Инвентарь</h1>
+</header>
 
-            try {
-                const response = await fetch('http://127.0.0.1:8080/test1', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({ message }),
-                });
+<main>
+    <div>
+        <h2>Наличие инвентаря</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Инвентарь</th>
+                    <th>Количество</th>
+                </tr>
+            </thead>
+            <tbody id="inventory-table">
+                <tr>
+                    <td>Мячи</td>
+                    <td>10</td>
+                </tr>
+                <tr>
+                    <td>Ракетки</td>
+                    <td>5</td>
+                </tr>
+                <tr>
+                    <td>Скакалки</td>
+                    <td>15</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
 
-                if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
-                }
+    <div class="request-form">
+        <h2>Запрос инвентаря</h2>
+        <label for="inventory-select">Выберите инвентарь:</label>
+        <select id="inventory-select">
+            <option value="Мячи">Мячи</option>
+            <option value="Ракетки">Ракетки</option>
+            <option value="Скакалки">Скакалки</option>
+        </select>
+        
+        <div class="no-wrap-container">
+            <label for="quantity-input">Количество:</label>
+            <input type="number" id="quantity-input" min="1" value="1">
+        </div>
+        <button id="request-button">Запросить</button>
+    </div>
+</main>
 
-                const result = await response.json();
-                responseElement.textContent = `Server response: ${result.response}`;
-            } catch (error) {
-                responseElement.textContent = `Error: ${error.message}`;
-            }
-        });
-    </script>
+<script>
+    document.getElementById('request-button').addEventListener('click', function() {
+        const inventory = document.getElementById('inventory-select').value;
+        const quantity = document.getElementById('quantity-input').value;
+        alert(`Вы запросили ${quantity} ${inventory}(ов)`);
+    });
+</script>
+
 </body>
 </html>
-
