@@ -23,7 +23,7 @@ async function fetchUsername() {
 }
 
 // Обработка запроса инвентаря
-function setupInventoryRequest() {
+function setupInventory() {
     const requestButton = document.getElementById('request-button');
     requestButton.addEventListener('click', () => {
         const inventory = document.getElementById('inventory-select').value;
@@ -32,11 +32,6 @@ function setupInventoryRequest() {
     });
 }
 
-// Инициализация функций
-document.addEventListener('DOMContentLoaded', () => {
-    fetchUsername(); // Загружаем имя пользователя при загрузке страницы
-    setupInventoryRequest(); // Настраиваем обработку запроса инвентаря
-});
 // Получение инвентаря пользователя через GET-запрос
 async function fetchUserInventory() {
     try {
@@ -54,6 +49,7 @@ async function fetchUserInventory() {
         inventoryTable.innerHTML = ''; // Очищаем таблицу перед добавлением новых данных
 
         for (const [itemName, quantity] of Object.entries(inventoryData)) {
+            if (quantity === 0) continue;
             const row = document.createElement('tr');
             row.innerHTML = `
                 <td>${itemName}</td>
@@ -69,6 +65,50 @@ async function fetchUserInventory() {
 // Инициализация функций
 document.addEventListener('DOMContentLoaded', () => {
     fetchUsername(); // Загружаем имя пользователя
+    setupInventory(); // Настраиваем обработку запроса инвентаря
     fetchUserInventory(); // Загружаем инвентарь пользователя
     setupInventoryRequest(); // Настраиваем обработку запроса инвентаря
 });
+// Обработка запроса дополнительного инвентаря
+function setupInventoryRequest() {
+    const requestButton = document.getElementById('request-button');
+
+    // Убираем все старые обработчики событий
+    const newRequestButton = requestButton.cloneNode(true);
+    requestButton.replaceWith(newRequestButton);
+
+    // Назначаем новый обработчик
+    newRequestButton.addEventListener('click', async () => {
+        const inventory = document.getElementById('inventory-select').value;
+        const quantity = parseInt(document.getElementById('quantity-input').value);
+
+        if (!inventory || quantity <= 0) {
+            alert('Введите корректное название предмета и количество.');
+            return;
+        }
+
+        try {
+            const response = await fetch('http://127.0.0.1:8000/request-extra-inventory', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    item: inventory,
+                    quantity: quantity,
+                }),
+            });
+
+            if (!response.ok) {
+                throw new Error(`HTTP error! Status: ${response.status}`);
+            }
+
+            const result = await response.json();
+            alert(result.message); // Уведомление
+        } catch (error) {
+            console.error('Ошибка при отправке запроса инвентаря:', error);
+            alert('Произошла ошибка при запросе. Попробуйте снова.');
+        }
+    });
+}
+
