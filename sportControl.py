@@ -24,7 +24,6 @@ from pydantic import BaseModel
 
 ph = argon2.PasswordHasher()
 
-sport.mount("/", StaticFiles(directory="."), name=".")
 
 sport.add_middleware(
     CORSMiddleware,
@@ -86,19 +85,8 @@ class Request:
     method: str
     url: str
 
-@sport.exception_handler(HTTPException)
-async def http_exception_handler(request, exc):
-    if exc.status_code == 405:
-        return JSONResponse(
-            status_code=405,
-            content={"message": "Custom message for Method Not Allowed"}
-        )
-    return await default_http_exception_handler(request, exc)
 
-@sport.post("/items/{item_id}")
-async def read_item(item_id: int):
-    return {"item_id": item_id}
-
+# по идее должно регистрировать, но требует решистрации, так что не требуется
 @sport.post('/auth/login')
 def login(response: Response, auth: Annotated[str, Depends(check_auth)]):
     session_id = set_session(auth)
@@ -110,16 +98,12 @@ def login(response: Response, dropped: Annotated[str, Depends(rem_session)]):
     response.delete_cookie(COOKIE_ALIAS)
     return {"success": True, "deleted": dropped}
 
-@sport.middleware("http")
-async def log_requests(request: Request, call_next):
-    print(f"Incoming request: {request.method} {request.url}")
-    response = await call_next(request)
-    return response
-
+# должно выдавать домашнюю страницу
 @sport.get("/")
 def get_home_page():
     return {"message": "aboba"}
 
+# создание нового пользователя по нику, почте и паролю
 @sport.post("/new_user")
 def new_user(data:New_user, cursor: sqlite3.Cursor = Depends(get_db)):
     try:
@@ -128,6 +112,7 @@ def new_user(data:New_user, cursor: sqlite3.Cursor = Depends(get_db)):
         print("Ошибка при работе с SQLite", error)
         return {"message": "this user already exist"}
 
+# тож самое, но для админов
 @sport.post("/new_admin")
 def new_admin(data:New_user,credentials: Annotated[HTTPBasicCredentials, Depends(sec)], cursor: sqlite3.Cursor = Depends(get_db)):
     try:
@@ -139,19 +124,23 @@ def new_admin(data:New_user,credentials: Annotated[HTTPBasicCredentials, Depends
         print("Ошибка при работе с SQLite", error)
         return {"message": "this user already exist"}
 
+# выдает список названий доступного инвентаря, названия повторяются, можно просто посчитать их
 @sport.get("/get_inventory")
 def get_inventory(cursor: sqlite3.Cursor = Depends(get_db)):
     return {"message": get_free_inventory(cursor)}
 
+# тож самое, но выдает тот инвентарь, что уже закреплен за конкретным пользователем
 @sport.get("/get_my_inventory")
 def get_my(credentials: Annotated[HTTPBasicCredentials, Depends(sec)], cursor: sqlite3.Cursor = Depends(get_db)):
     return {"message": get_my_inventory(credentials.username,cursor)}
 
+# для админов, выдает "сломанный" инвентарь
 @sport.get("/get_broken_inventory")
 def get_broken(credentials: Annotated[HTTPBasicCredentials, Depends(sec)],cursor: sqlite3.Cursor = Depends(get_db)):
     if Admin(credentials.username, cursor):
         return {"message": get_broken_inventory(cursor)}
 
+# для админов, заменяет инвентарь тотально по каждому параметру
 @sport.put("/set_inventory")
 def rewrite_inventory(data:Inventory ,credentials: Annotated[HTTPBasicCredentials, Depends(sec)],cursor: sqlite3.Cursor = Depends(get_db)):
     try:
@@ -161,6 +150,7 @@ def rewrite_inventory(data:Inventory ,credentials: Annotated[HTTPBasicCredential
         print("Ошибка при работе с SQLite", error)
         return {"message": "something went wrong"}
 
+# добавляет новый инвентарь, для админов
 @sport.put("/add_inventory")
 def new_inventory(credentials: Annotated[HTTPBasicCredentials, Depends(sec)], name:str, cond:str =Form(), cursor: sqlite3.Cursor = Depends(get_db)):
     try:
@@ -170,6 +160,7 @@ def new_inventory(credentials: Annotated[HTTPBasicCredentials, Depends(sec)], na
         print("Ошибка при работе с SQLite", error)
         return {"message": "something went wrong"}
 
+# для админов, просмотр списка желаний клиентов
 @sport.get("/view_wishes")
 def view_wishes(credentials: Annotated[HTTPBasicCredentials, Depends(sec)],cursor: sqlite3.Cursor = Depends(get_db)):
     try:
@@ -179,10 +170,12 @@ def view_wishes(credentials: Annotated[HTTPBasicCredentials, Depends(sec)],curso
         print("Ошибка при работе с SQLite", error)
         return {"message": "something went wrong"}
 
+# отправляет название инвентаря в список желаний клиентов
 @sport.post("/send_request")
 def send_request(credentials: Annotated[HTTPBasicCredentials, Depends(sec)], name:str =Form(), cursor: sqlite3.Cursor = Depends(get_db)):
     return send_request()
 
+# для админов, выдает айди и название всех занятых вещей
 @sport.get("/get_occupied_inventory")
 def get_occupied(credentials: Annotated[HTTPBasicCredentials, Depends(sec)],cursor: sqlite3.Cursor = Depends(get_db)):
     try:
@@ -192,6 +185,7 @@ def get_occupied(credentials: Annotated[HTTPBasicCredentials, Depends(sec)],curs
         print("Ошибка при работе с SQLite", error)
         return {"message": "something went wrong"}
 
+# для админов, выдает инвентарь категории "нужна проверка"
 @sport.get("/get_need_inspection")
 def get_need_inspection(credentials: Annotated[HTTPBasicCredentials, Depends(sec)],cursor: sqlite3.Cursor = Depends(get_db)):
     try:
@@ -201,10 +195,12 @@ def get_need_inspection(credentials: Annotated[HTTPBasicCredentials, Depends(sec
         print("Ошибка при работе с SQLite", error)
         return {"message": "something went wrong"}
 
+# "возвращает" инвентарь, по факту изменяет его состояние на "нужна проверка" 
 @sport.post("/return_inventory")
 def return_inventory(inventory_name:str, credentials: Annotated[HTTPBasicCredentials, Depends(sec)],cursor: sqlite3.Cursor = Depends(get_db)):
     pass_inventory(inventory_name, credentials.username, cursor)
 
+# занимет инвентарь, приписывая к пользователю
 @sport.post("/occupy_inv")
 def occupy_inv(inventory_name:str, credentials: Annotated[HTTPBasicCredentials, Depends(sec)],cursor: sqlite3.Cursor = Depends(get_db)):
     occupy_inventory(inventory_name, credentials.username, cursor)
